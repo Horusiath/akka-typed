@@ -8,25 +8,27 @@
 
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Akka.Typed.Internal
 {
-    internal sealed class ReceiveBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
+    public sealed class ReceiveBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
     {
-        [NotNull] private readonly Receive<TMessage> _onMessage;
-        [NotNull] private readonly ReceiveSignal<TMessage> _onSignal;
+        private readonly Receive<TMessage> _onMessage;
+        private readonly ReceiveSignal<TMessage> _onSignal;
 
-        public ReceiveBehavior([NotNull]Receive<TMessage> onMessage, ReceiveSignal<TMessage> onSignal = null)
+        public ReceiveBehavior(Receive<TMessage> onMessage, ReceiveSignal<TMessage> onSignal = null)
         {
             _onMessage = onMessage;
-            _onSignal = onSignal ?? Behavior<TMessage>.UnhandledSignal;
+            _onSignal = onSignal;
         }
 
         public override Behavior<TNarrowed> Narrow<TNarrowed>()
         {
             throw new System.NotImplementedException();
         }
+
+        public ReceiveBehavior<TMessage> ReceiveSignal(ReceiveSignal<TMessage> onSignal) =>
+            new ReceiveBehavior<TMessage>(_onMessage, onSignal);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override ValueTask<Behavior<TMessage>> Receive(IActorContext<TMessage> context, TMessage message) =>
@@ -43,12 +45,12 @@ namespace Akka.Typed.Internal
     /// another function which drops the context parameter.
     /// </summary>
     /// <seealso cref="ReceiveBehavior{TMessage}"/>
-    internal sealed class ReceiveMessageBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
+    public sealed class ReceiveMessageBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
     {
-        [NotNull] private readonly ReceiveMessage<TMessage> _onMessage;
-        [NotNull] private readonly ReceiveSignal<TMessage> _onSignal;
+        private readonly ReceiveMessage<TMessage> _onMessage;
+        private readonly ReceiveSignal<TMessage> _onSignal;
 
-        public ReceiveMessageBehavior([NotNull]ReceiveMessage<TMessage> onMessage, ReceiveSignal<TMessage> onSignal = null)
+        public ReceiveMessageBehavior(ReceiveMessage<TMessage> onMessage, ReceiveSignal<TMessage> onSignal = null)
         {
             _onMessage = onMessage;
             _onSignal = onSignal ?? Behavior<TMessage>.UnhandledSignal;
@@ -58,6 +60,9 @@ namespace Akka.Typed.Internal
         {
             throw new System.NotImplementedException();
         }
+
+        public ReceiveMessageBehavior<TMessage> ReceiveSignal(ReceiveSignal<TMessage> onSignal) =>
+            new ReceiveMessageBehavior<TMessage>(_onMessage, onSignal);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override ValueTask<Behavior<TMessage>> Receive(IActorContext<TMessage> context, TMessage message) =>
@@ -79,19 +84,28 @@ namespace Akka.Typed.Internal
             _second = second;
         }
 
-        public override Behavior<TNarrowed> Narrow<TNarrowed>()
+        public override Behavior<TNarrowed> Narrow<TNarrowed>() => new OrElseBehavior<TNarrowed>(_first.Narrow<TNarrowed>(), _second.Narrow<TNarrowed>());
+
+        public override async ValueTask<Behavior<TMessage>> Receive(IActorContext<TMessage> context, TMessage message)
         {
-            throw new System.NotImplementedException();
+            var result = await Behaviors.Interpret(_first, context, message);
+            if (result is UnhandledBehavior<TMessage>)
+            {
+                result = await Behaviors.Interpret(_second, context, message);
+            }
+
+            return result;
         }
 
-        public override ValueTask<Behavior<TMessage>> Receive(IActorContext<TMessage> context, TMessage message)
+        public override async ValueTask<Behavior<TMessage>> ReceiveSignal(IActorContext<TMessage> context, ISignal signal)
         {
-            throw new System.NotImplementedException();
-        }
+            var result = await Behaviors.Interpret(_first, context, signal);
+            if (result is UnhandledBehavior<TMessage>)
+            {
+                result = await Behaviors.Interpret(_second, context, signal);
+            }
 
-        public override ValueTask<Behavior<TMessage>> ReceiveSignal(IActorContext<TMessage> context, ISignal signal)
-        {
-            throw new System.NotImplementedException();
+            return result;
         }
     }
 }

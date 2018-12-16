@@ -11,18 +11,24 @@ using System.Runtime.CompilerServices;
 
 namespace Akka.Typed
 {
-    internal static class ThrowHelpers
+    internal static class Raises
     {
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void DeathPactException(IActorRef<Nothing> terminatedRef)
+        public static void DeathPact(IActorRef<Nothing> terminatedRef)
         {
             throw new DeathPactException(terminatedRef);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ArgumentException(string msg)
+        public static void InvalidArgument(string msg)
         {
             throw new ArgumentException(msg);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void NotSupported(string msg)
+        {
+            throw new NotSupportedException(msg);
         }
     }
 }

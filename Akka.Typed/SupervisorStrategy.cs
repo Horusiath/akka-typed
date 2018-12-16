@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace Akka.Typed
 {
-    public abstract class SupervisionStrategy
+    public abstract class SupervisorStrategy
     {
         #region statics
 
@@ -22,7 +22,7 @@ namespace Akka.Typed
         /// If the actor behavior is deferred and throws an exception on startup the actor is stopped
         /// (restarting would be dangerous as it could lead to an infinite restart-loop)
         /// </summary>
-        public static readonly SupervisionStrategy Resume = new Resume(isLoggingEnabled: true);
+        public static readonly SupervisorStrategy Resume = new Resume(isLoggingEnabled: true);
 
         /// <summary>
         /// Restart immediately without any limit on number of restart retries.
@@ -30,12 +30,12 @@ namespace Akka.Typed
         /// If the actor behavior is deferred and throws an exception on startup the actor is stopped
         /// (restarting would be dangerous as it could lead to an infinite restart-loop)
         /// </summary>
-        public static readonly SupervisionStrategy Restart = new Restart(-1, TimeSpan.Zero, isLoggingEnabled: true);
+        public static readonly SupervisorStrategy Restart = new Restart(-1, TimeSpan.Zero, isLoggingEnabled: true);
 
         /// <summary>
         /// Stop the actor.
         /// </summary>
-        public static readonly SupervisionStrategy Stop = new Stop(isLoggingEnabled: true);
+        public static readonly SupervisorStrategy Stop = new Stop(isLoggingEnabled: true);
 
         /// <summary>
         /// Restart with a limit of number of restart retries.
@@ -50,7 +50,7 @@ namespace Akka.Typed
         ///   if the limit is exceeded the child actor is stopped</param>
         /// <param name="within">duration of the time window for maxRetries</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SupervisionStrategy RestartWithLimit(int maxRetries, TimeSpan within) =>
+        public static SupervisorStrategy RestartWithLimit(int maxRetries, TimeSpan within) =>
             new Restart(maxRetries, within, isLoggingEnabled: true);
 
         /// <summary>
@@ -89,15 +89,15 @@ namespace Akka.Typed
 
         public bool IsLoggingEnabled { get; }
 
-        protected SupervisionStrategy(bool isLoggingEnabled)
+        protected SupervisorStrategy(bool isLoggingEnabled)
         {
             IsLoggingEnabled = isLoggingEnabled;
         }
 
-        public abstract SupervisionStrategy WithLoggingEnabled(bool enabled);
+        public abstract SupervisorStrategy WithLoggingEnabled(bool enabled);
     }
 
-    public abstract class BackoffSupervisorStrategy : SupervisionStrategy
+    public abstract class BackoffSupervisorStrategy : SupervisorStrategy
     {
         public TimeSpan ResetBackoffAfter { get; }
 
@@ -120,7 +120,7 @@ namespace Akka.Typed
         }
     }
 
-    internal sealed class Resume : SupervisionStrategy
+    internal sealed class Resume : SupervisorStrategy
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Resume(bool isLoggingEnabled) : base(isLoggingEnabled)
@@ -128,11 +128,11 @@ namespace Akka.Typed
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override SupervisionStrategy WithLoggingEnabled(bool enabled) =>
+        public override SupervisorStrategy WithLoggingEnabled(bool enabled) =>
             new Resume(enabled);
     }
 
-    internal sealed class Stop : SupervisionStrategy
+    internal sealed class Stop : SupervisorStrategy
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Stop(bool isLoggingEnabled) : base(isLoggingEnabled)
@@ -140,11 +140,11 @@ namespace Akka.Typed
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override SupervisionStrategy WithLoggingEnabled(bool enabled) =>
+        public override SupervisorStrategy WithLoggingEnabled(bool enabled) =>
             new Stop(enabled);
     }
 
-    internal sealed class Restart : SupervisionStrategy
+    internal sealed class Restart : SupervisorStrategy
     {
         public int MaxRetries { get; }
         public TimeSpan Within { get; }
@@ -159,7 +159,7 @@ namespace Akka.Typed
         public bool HasUnlimitedRestarts => MaxRetries == -1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override SupervisionStrategy WithLoggingEnabled(bool enabled) =>
+        public override SupervisorStrategy WithLoggingEnabled(bool enabled) =>
             new Restart(MaxRetries, Within, enabled);
     }
 
@@ -181,7 +181,7 @@ namespace Akka.Typed
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override SupervisionStrategy WithLoggingEnabled(bool enabled) =>
+        public override SupervisorStrategy WithLoggingEnabled(bool enabled) =>
             new Backoff(MinBackoff, MaxBackoff, RandomFactor, ResetBackoffAfter, enabled, MaxRestart);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

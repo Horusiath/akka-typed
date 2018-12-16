@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Akka.Actor;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Akka.Typed.Internal
@@ -135,8 +134,7 @@ namespace Akka.Typed.Internal
             timer.Task.Cancel();
             _timers = _timers.Remove(timer.Key);
         }
-
-        [CanBeNull]
+        
         public TMessage InterceptTimerMessage(IActorContext<ITimerMessage> context, ITimerMessage message)
         {
             var key = message.Key;
@@ -199,7 +197,7 @@ namespace Akka.Typed.Internal
                 : target.Apply(context, intercepted);
         }
 
-        public ValueTask<Behavior<T>> AroundReceive<TSignalTarget>(IActorContext<object> context, ISignal signal, TSignalTarget target) where TSignalTarget : ISignalTarget<T>
+        public ValueTask<Behavior<T>> AroundSignal<TSignalTarget>(IActorContext<object> context, ISignal signal, TSignalTarget target) where TSignalTarget : ISignalTarget<T>
         {
             if (signal is PreStart || signal is PostStop)
             {

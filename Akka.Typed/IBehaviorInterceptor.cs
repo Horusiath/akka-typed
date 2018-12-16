@@ -15,9 +15,11 @@ namespace Akka.Typed
     /// transform, filter, send to a side channel etc. It is the core API for decoration of behaviors. Many built-in
     /// intercepting behaviors are provided through factories in the respective `Behaviors`.
     /// </summary>
-    /// <typeparam name="TOuter">The outer message type – the type of messages the intercepting behavior will accept.</typeparam>
-    /// <typeparam name="TInner">The inner message type - the type of message the wrapped behavior accepts.</typeparam>
-    public interface IBehaviorInterceptor<TOuter, TInner> where TOuter : class where TInner : class
+    /// <typeparam name="TOut">The outer message type – the type of messages the intercepting behavior will accept.</typeparam>
+    /// <typeparam name="TIn">The inner message type - the type of message the wrapped behavior accepts.</typeparam>
+    public interface IBehaviorInterceptor<TOut, TIn> 
+        where TOut : class 
+        where TIn : class
     {
         /// <summary>
         /// Override to intercept actor startup. To trigger startup of
@@ -27,8 +29,8 @@ namespace Akka.Typed
         /// The returned behavior will be the "started" behavior of the actor used to accept
         /// the next message or signal.
         /// </returns>
-        ValueTask<Behavior<TInner>> AroundStart<TPreStartTarget>(IActorContext<TOuter> context, TPreStartTarget target)
-            where TPreStartTarget : IPreStartTarget<TInner>;
+        ValueTask<Behavior<TIn>> AroundStart<TPreStartTarget>(IActorContext<TOut> context, TPreStartTarget target)
+            where TPreStartTarget : IPreStartTarget<TIn>;
 
         /// <summary>
         /// Intercept a message sent to the running actor. Pass the message on to the next behavior
@@ -36,16 +38,16 @@ namespace Akka.Typed
         /// return <see cref="Behaviors.Same{T}"/> without invoking <paramref name="target"/> to filter out the message.
         /// </summary>
         /// <returns>The behavior for next message or signal</returns>
-        ValueTask<Behavior<TInner>> AroundReceive<TReceiveTarget>(IActorContext<TOuter> context, TOuter message, TReceiveTarget target)
-            where TReceiveTarget : IReceiveTarget<TInner>;
+        ValueTask<Behavior<TIn>> AroundReceive<TReceiveTarget>(IActorContext<TOut> context, TOut message, TReceiveTarget target)
+            where TReceiveTarget : IReceiveTarget<TIn>;
 
         /// <summary>
         /// Intercept a signal sent to the running actor. Pass the signal on to the next behavior
         /// in the stack by passing it to <c>target.Apply(context, signal)</c>.
         /// </summary>
         /// <returns>The behavior for next message or signal</returns>
-        ValueTask<Behavior<TInner>> AroundReceive<TSignalTarget>(IActorContext<TOuter> context, ISignal signal, TSignalTarget target)
-            where TSignalTarget : ISignalTarget<TInner>;
+        ValueTask<Behavior<TIn>> AroundSignal<TSignalTarget>(IActorContext<TOut> context, ISignal signal, TSignalTarget target)
+            where TSignalTarget : ISignalTarget<TIn>;
     }
 
     /// <summary>

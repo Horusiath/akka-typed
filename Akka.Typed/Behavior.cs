@@ -10,7 +10,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Akka.Typed.Internal;
-using JetBrains.Annotations;
 
 namespace Akka.Typed
 {
@@ -161,19 +160,28 @@ namespace Akka.Typed
     {
         public static readonly Behavior<T> Default = new StoppedBehavior<T>(null);
 
-        [CanBeNull] internal readonly Behavior<T> postStop;
+        internal readonly Behavior<T> PostStop;
 
-        public StoppedBehavior([CanBeNull] Behavior<T> postStop)
+        public StoppedBehavior(Behavior<T> postStop)
         {
             if (postStop is DeferredBehavior<T>)
-                ThrowHelpers.ArgumentException("Behavior used as `postStop` behavior in Stopped(...) was a deferred one, which is not supported (it would never be evaluated).");
+                Raises.InvalidArgument("Behavior used as `postStop` behavior in Stopped(...) was a deferred one, which is not supported (it would never be evaluated).");
 
-            this.postStop = postStop;
+            PostStop = postStop;
         }
 
         public override Behavior<TNarrowed> Narrow<TNarrowed>()
         {
             throw new NotImplementedException();
         }
+    }
+
+    internal sealed class FailedBehavior<T> : Behavior<T> where T : class
+    {
+        public static readonly Behavior<T> Instance = new FailedBehavior<T>();
+        private FailedBehavior() { }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Behavior<TNarrowed> Narrow<TNarrowed>() => FailedBehavior<TNarrowed>.Instance;
     }
 }

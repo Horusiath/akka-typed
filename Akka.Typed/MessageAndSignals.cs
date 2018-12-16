@@ -17,6 +17,18 @@ namespace Akka.Typed
     /// Actor messages).
     /// </summary>
     public interface ISignal { }
+
+    /// <summary>
+    /// Lifecycle signal that is fired upon restart of the Actor before replacing
+    /// the behavior with the fresh one (i.e. this signal is received within the
+    /// behavior that failed). The replacement behavior will receive PreStart as its
+    /// first signal.
+    /// </summary>
+    public sealed class PreRestart : ISignal
+    {
+        public static readonly PreRestart Instance = new PreRestart();
+        private PreRestart() { }
+    }
     
     /// <summary>
     /// Envelope that is published on the eventStream for every message that is

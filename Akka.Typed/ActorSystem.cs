@@ -24,7 +24,7 @@ namespace Akka.Typed
     /// 
     /// Not for user extension.
     /// </summary>
-    public abstract class ActorSystem<T> : IActorRef<T>, IAsyncDisposable where T : class
+    public abstract class ActorSystem<TMessage> : IActorRef<TMessage>, IAsyncDisposable where TMessage : class
     {
         /// <summary>
         /// The name of this actor system, used to distinguish multiple ones within the same process.
@@ -84,6 +84,16 @@ namespace Akka.Typed
             throw new NotImplementedException();
         }
 
+        public IActorRef<T2> SpawnAnonymous<T2>(Behavior<T2> behavior, Props props = null) where T2 : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public IActorRef<T2> Spawn<T2>(Behavior<T2> behavior, string name, Props props = null) where T2 : class
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Terminates this actor system. This will stop the guardian actor, which in turn
         /// will recursively stop all its child actors, then the system guardian
@@ -98,17 +108,17 @@ namespace Akka.Typed
 
         public ActorPath Path => throw new System.NotImplementedException();
 
-        public int CompareTo(IActorRef<T> other)
+        public int CompareTo(IActorRef<TMessage> other)
         {
             throw new System.NotImplementedException();
         }
 
-        public IActorRef<TNarrowed> Narrow<TNarrowed>() where TNarrowed : class, T
+        public IActorRef<TNarrowed> Narrow<TNarrowed>() where TNarrowed : class, TMessage
         {
             throw new System.NotImplementedException();
         }
 
-        public void Tell(T message)
+        public void Tell(TMessage message)
         {
             throw new System.NotImplementedException();
         }
