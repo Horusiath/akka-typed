@@ -11,6 +11,17 @@ using Akka.Actor;
 
 namespace Akka.Typed
 {
+    public interface IAddressable
+    {
+        /// <summary>
+        /// The hierarchical path name of the referenced Actor. The lifecycle of the
+        /// ActorRef is fully contained within the lifecycle of the [[akka.actor.ActorPath]]
+        /// and more than one Actor instance can exist with the same path at different
+        /// points in time, but not concurrently.
+        /// </summary>
+        ActorPath Path { get; }
+    }
+
     public interface IRecipientRef<in T>
     {
         /// <summary>
@@ -21,16 +32,8 @@ namespace Akka.Typed
         void Tell(T message); //TODO: make this return ValueTask?
     }
 
-    public interface IActorRef<in T> : IRecipientRef<T>, IComparable where T: class
+    public interface IActorRef<in T> : IAddressable, IRecipientRef<T>, IComparable where T: class
     {
-        /// <summary>
-        /// The hierarchical path name of the referenced Actor. The lifecycle of the
-        /// ActorRef is fully contained within the lifecycle of the [[akka.actor.ActorPath]]
-        /// and more than one Actor instance can exist with the same path at different
-        /// points in time, but not concurrently.
-        /// </summary>
-        ActorPath Path { get; }
-
         /// <summary>
         /// Narrow the type of this <see cref="IActorRef{T}"/>, which is always a safe operation.
         /// </summary>

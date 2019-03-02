@@ -20,7 +20,7 @@ namespace Akka.Typed
     /// <summary>
     /// An empty value type. It has no space and occupies no memory.
     /// </summary>
-    public struct Void
+    public readonly struct Void
     {
         public static readonly Void Default = new Void();
     }
