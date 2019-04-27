@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -16,6 +17,31 @@ namespace Akka.Typed.Internal
 {
     internal sealed class ActorContext<TMessage> : IActorContext<TMessage> where TMessage : class
     {
+        private IAddressable _messageAdapterRef = null;
+        private List<(Type, Func<object, TMessage>)> _messageAdapters = null;
+        private TimerScheduler<TMessage> _timer = null;
+
+        public ActorContext()
+        {
+        }
+
+        /// <summary>
+        /// Context-shared timer needed to allow for nested timer usage
+        /// </summary>
+        public TimerScheduler<TMessage> Timer => _timer ?? (_timer = new TimerScheduler<TMessage>(this));
+
+        private bool HasTimer
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => !(_timer is null);
+        }
+
+        private void CancelAllTimers()
+        {
+            if (HasTimer)
+                _timer.CancelAll();
+        }
+
         public IActorRef<TMessage> Self { get; }
         public ActorSystem<Nothing> System { get; }
         public ILogger Log { get; }

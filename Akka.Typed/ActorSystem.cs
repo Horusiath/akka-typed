@@ -10,7 +10,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Akka.Actor;
-using Akka.Typed.Internal.Receptionist;
+using Akka.Typed.Internal.Receptionists;
 using Microsoft.Extensions.Logging;
 
 namespace Akka.Typed
@@ -113,7 +113,7 @@ namespace Akka.Typed
             throw new System.NotImplementedException();
         }
 
-        public IActorRef<TNarrowed> Narrow<TNarrowed>() where TNarrowed : class, TMessage
+        public IActorRef<TNarrowed> Narrow<TNarrowed>() where TNarrowed : TMessage
         {
             throw new System.NotImplementedException();
         }
@@ -123,7 +123,7 @@ namespace Akka.Typed
             throw new System.NotImplementedException();
         }
 
-        public IActorRef<T2> UnsafeCast<T2>() where T2 : class
+        public IActorRef<T2> UnsafeCast<T2>()
         {
             throw new System.NotImplementedException();
         }

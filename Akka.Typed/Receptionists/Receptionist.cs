@@ -11,7 +11,6 @@ using System.Runtime.CompilerServices;
 
 namespace Akka.Typed.Receptionists
 {
-
     /// <summary>
     /// Associate the given <see cref="IActorRef{T}"/> with the given <see cref="ServiceKey{T}"/>. Multiple
     /// registrations can be made for the same key. De-registration is implied by
@@ -21,13 +20,13 @@ namespace Akka.Typed.Receptionists
     /// if there is one.
     /// </summary>
     /// <seealso cref="Registered{T}"/>
-    public sealed class Register<T> : Receptionist.ICommand where T : class
+    public sealed class Register<T> : Receptionist.ICommand 
     {
         public ServiceKey<T> Key { get; }
         public IActorRef<T> Service { get; }
-        public IActorRef<Registered<T>>? ReplyTo { get; }
+        public IActorRef<Registered<T>> ReplyTo { get; }
 
-        public Register(ServiceKey<T> key, IActorRef<T> service, IActorRef<Registered<T>>? replyTo = null)
+        public Register(ServiceKey<T> key, IActorRef<T> service, IActorRef<Registered<T>> replyTo = null)
         {
             Key = key;
             Service = service;
@@ -40,7 +39,7 @@ namespace Akka.Typed.Receptionists
     /// </summary>
     /// <seealso cref="Register{T}"/>
     /// <typeparam name="T"></typeparam>
-    public sealed class Registered<T> where T : class
+    public sealed class Registered<T> 
     {
         public ServiceKey<T> Key { get; }
         public IActorRef<T> Service { get; }
@@ -59,7 +58,7 @@ namespace Akka.Typed.Receptionists
     /// The subscription will be acknowledged by sending out a first <see cref="Listing{T}"/>. The subscription automatically ends
     /// with the termination of the subscriber.
     /// </summary>
-    public sealed class Subscribe<T> : Receptionist.ICommand where T : class
+    public sealed class Subscribe<T> : Receptionist.ICommand 
     {
         public ServiceKey<T> Key { get; }
         public IActorRef<Listing<T>> Subscriber { get; }
@@ -75,7 +74,7 @@ namespace Akka.Typed.Receptionists
     /// Query the Receptionist for a list of all Actors implementing the given
     /// protocol at one point in time.
     /// </summary>
-    public sealed class Find<T> : Receptionist.ICommand where T : class
+    public sealed class Find<T> : Receptionist.ICommand 
     {
         public ServiceKey<T> Key { get; }
         public IActorRef<Listing<T>> ReplyTo { get; }
@@ -91,7 +90,7 @@ namespace Akka.Typed.Receptionists
     /// Current listing of all Actors that implement the protocol given by the <see cref="ServiceKey{T}"/>.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class Listing<T> where T : class
+    public sealed class Listing<T> 
     {
         public ServiceKey<T> Key { get; }
         public ImmutableHashSet<IActorRef<T>> Services { get; }
@@ -121,11 +120,11 @@ namespace Akka.Typed.Receptionists
             new Register<T>(new ServiceKey<T>(id), service, replyTo);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Subscribe<T> Subscribe<T>(string id, IActorRef<Listing<T>> subscriber) where T : class =>
+        public static Subscribe<T> Subscribe<T>(string id, IActorRef<Listing<T>> subscriber)  =>
             new Subscribe<T>(new ServiceKey<T>(id), subscriber);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Find<T> Find<T>(string id, IActorRef<Listing<T>> replyTo) where T : class =>
+        public static Find<T> Find<T>(string id, IActorRef<Listing<T>> replyTo)  =>
             new Find<T>(new ServiceKey<T>(id), replyTo);
     }
 }

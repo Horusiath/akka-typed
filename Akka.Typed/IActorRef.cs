@@ -20,32 +20,43 @@ namespace Akka.Typed
         /// points in time, but not concurrently.
         /// </summary>
         ActorPath Path { get; }
-    }
-
-    public interface IRecipientRef<in T>
-    {
-        /// <summary>
-        /// Send a message to the destination referenced by this <see cref="IRecipientRef{T}"/>
-        /// using at-most-once* messaging semantics.
-        /// </summary>
-        /// <param name="message"></param>
-        void Tell(T message); //TODO: make this return ValueTask?
-    }
-
-    public interface IActorRef<in T> : IAddressable, IRecipientRef<T>, IComparable where T: class
-    {
-        /// <summary>
-        /// Narrow the type of this <see cref="IActorRef{T}"/>, which is always a safe operation.
-        /// </summary>
-        /// <typeparam name="TNarrowed">Subtype of <typeparamref name="T"/></typeparam>
-        /// <returns></returns>
-        IActorRef<TNarrowed> Narrow<TNarrowed>() where TNarrowed : class, T;
 
         /// <summary>
         /// Unsafe utility method for widening the type accepted by this ActorRef;
         /// provided to avoid having to use `asInstanceOf` on the full reference type,
         /// which would unfortunately also work on non-ActorRefs.
         /// </summary>
-        IActorRef<T2> UnsafeCast<T2>() where T2 : class;
+        IActorRef<T2> UnsafeCast<T2>();
+    }
+
+    public interface IRecipientRef<in TMessage>
+    {
+        /// <summary>
+        /// Send a message to the destination referenced by this <see cref="IRecipientRef{T}"/>
+        /// using at-most-once messaging semantics.
+        /// </summary>
+        /// <param name="message"></param>
+        void Tell(TMessage message); //TODO: make this return ValueTask?
+    }
+
+    /// <summary>
+    /// An ActorRef is the identity or address of an Actor instance. It is valid
+    /// only during the Actor’s lifetime and allows messages to be sent to that
+    /// Actor instance. Sending a message to an Actor that has terminated before
+    /// receiving the message will lead to that message being discarded; such
+    /// messages are delivered to the <see cref="DeadLetter"/> channel of the
+    /// <see cref="EventStream"/> on a best effort basis
+    /// (i.e. this delivery is not reliable).
+    /// 
+    /// Not for user extension
+    /// </summary>
+    public interface IActorRef<in TMessage> : IAddressable, IRecipientRef<TMessage>, IComparable
+    {
+        /// <summary>
+        /// Narrow the type of this <see cref="IActorRef{T}"/>, which is always a safe operation.
+        /// </summary>
+        /// <typeparam name="TNarrowed">Subtype of <typeparamref name="TMessage"/></typeparam>
+        /// <returns></returns>
+        IActorRef<TNarrowed> Narrow<TNarrowed>() where TNarrowed : TMessage;
     }
 }

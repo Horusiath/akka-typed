@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Akka.Typed.Internal
 {
-    public sealed class ReceiveBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
+    public sealed class ReceiveBehavior<TMessage> : ExtensibleBehavior<TMessage>
     {
         private readonly Receive<TMessage> _onMessage;
         private readonly ReceiveSignal<TMessage> _onSignal;
@@ -45,7 +45,7 @@ namespace Akka.Typed.Internal
     /// another function which drops the context parameter.
     /// </summary>
     /// <seealso cref="ReceiveBehavior{TMessage}"/>
-    public sealed class ReceiveMessageBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
+    public sealed class ReceiveMessageBehavior<TMessage> : ExtensibleBehavior<TMessage>
     {
         private readonly ReceiveMessage<TMessage> _onMessage;
         private readonly ReceiveSignal<TMessage> _onSignal;
@@ -73,7 +73,7 @@ namespace Akka.Typed.Internal
             _onSignal(context, signal);
     }
 
-    internal sealed class OrElseBehavior<TMessage> : ExtensibleBehavior<TMessage> where TMessage : class
+    internal sealed class OrElseBehavior<TMessage> : ExtensibleBehavior<TMessage>
     {
         private readonly Behavior<TMessage> _first;
         private readonly Behavior<TMessage> _second;

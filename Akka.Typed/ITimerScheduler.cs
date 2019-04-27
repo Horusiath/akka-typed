@@ -11,19 +11,19 @@ using System;
 namespace Akka.Typed
 {
     /// <summary>
-    /// Support for scheduled `self` messages in an actor.
-    /// It is used with `Behaviors.withTimers`.
+    /// Support for scheduled <see cref="IActorContext{TMessage}.Self"/> messages in an actor.
+    /// It is used with <see cref="Behaviors.WithTimers"/>.
     /// Timers are bound to the lifecycle of the actor that owns it,
     /// and thus are cancelled automatically when it is restarted or stopped.
     /// 
-    /// `TimerScheduler` is not thread-safe, i.e. it must only be used within
+    /// <see cref="ITimerScheduler{T}"/> is not thread-safe, i.e. it must only be used within
     /// the actor that owns it.
     /// </summary>
-    public interface ITimerScheduler<T>
+    public interface ITimerScheduler<in T>
     {
         /// <summary>
-        /// Start a periodic timer that will send `msg` to the `self` actor at
-        /// a fixed `interval`.
+        /// Start a periodic timer that will send <paramref name="message"/> to the
+        /// <see cref="IActorContext{TMessage}.Self"/> actor at a fixed <paramref name="interval"/>.
         /// 
         /// Each timer has a key and if a new timer with same key is started
         /// the previous is cancelled and it's guaranteed that a message from the

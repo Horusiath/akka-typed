@@ -14,10 +14,10 @@ using Akka.Typed.Internal;
 
 namespace Akka.Typed
 {
-    public delegate ValueTask<Behavior<T>> Receive<T>(IActorContext<T> context, T message) where T : class;
-    public delegate ValueTask<Behavior<T>> ReceiveMessage<T>(T message) where T : class;
-    public delegate ValueTask<Behavior<T>> ReceiveSignal<T>(IActorContext<T> context, ISignal signal) where T : class;
-    public delegate ValueTask<Behavior<T>> Defer<T>(IActorContext<T> context) where T : class;
+    public delegate ValueTask<Behavior<T>> Receive<T>(IActorContext<T> context, T message);
+    public delegate ValueTask<Behavior<T>> ReceiveMessage<T>(T message);
+    public delegate ValueTask<Behavior<T>> ReceiveSignal<T>(IActorContext<T> context, ISignal signal);
+    public delegate ValueTask<Behavior<T>> Defer<T>(IActorContext<T> context);
 
     /// <summary>
     /// Factories for <see cref="Behavior{T}"/>.
@@ -36,7 +36,7 @@ namespace Akka.Typed
         /// processed by the started behavior.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Setup<T>(Defer<T> setup) where T : class => new DeferredBehavior<T>(setup);
+        public static Behavior<T> Setup<T>(Defer<T> setup) => new DeferredBehavior<T>(setup);
 
         /// <summary>
         /// Return this behavior from message processing in order to advise the
@@ -45,7 +45,7 @@ namespace Akka.Typed
         /// that is not necessary.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Same<T>() where T : class => SameBehavior<T>.Instance;
+        public static Behavior<T> Same<T>() => SameBehavior<T>.Instance;
 
         /// <summary>
         /// Return this behavior from message processing in order to advise the
@@ -54,7 +54,7 @@ namespace Akka.Typed
         /// behaviors that delegate (partial) handling to other behaviors.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Unhandled<T>() where T : class => UnhandledBehavior<T>.Instance;
+        public static Behavior<T> Unhandled<T>() => UnhandledBehavior<T>.Instance;
 
         /// <summary>
         /// Return this behavior from message processing to signal that this actor
@@ -66,7 +66,7 @@ namespace Akka.Typed
         /// ignored.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Stopped<T>() where T : class => StoppedBehavior<T>.Default;
+        public static Behavior<T> Stopped<T>() => StoppedBehavior<T>.Default;
 
         /// <summary>
         /// Return this behavior from message processing to signal that this actor
@@ -78,19 +78,19 @@ namespace Akka.Typed
         /// ignored.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Stopped<T>(Behavior<T> postStop) where T : class => new StoppedBehavior<T>(postStop);
+        public static Behavior<T> Stopped<T>(Behavior<T> postStop) => new StoppedBehavior<T>(postStop);
 
         /// <summary>
         /// A behavior that treats every incoming message as unhandled.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Empty<T>() where T : class => EmptyBehavior<T>.Instance;
+        public static Behavior<T> Empty<T>() => EmptyBehavior<T>.Instance;
 
         /// <summary>
         /// A behavior that ignores every incoming message and returns “same”.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Behavior<T> Ignore<T>() where T : class => IgnoreBehavior<T>.Instance;
+        public static Behavior<T> Ignore<T>() => IgnoreBehavior<T>.Instance;
 
         /// <summary>
         /// Construct an actor behavior that can react to both incoming messages and
@@ -105,7 +105,7 @@ namespace Akka.Typed
         /// a new behavior that holds the new immutable state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReceiveBehavior<T> Receive<T>(Receive<T> onMessage) where T : class =>
+        public static ReceiveBehavior<T> Receive<T>(Receive<T> onMessage) =>
             new ReceiveBehavior<T>(onMessage);
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Akka.Typed
         /// a new behavior that holds the new immutable state.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReceiveMessageBehavior<T> ReceiveMessage<T>(ReceiveMessage<T> onMessage) where T : class =>
+        public static ReceiveMessageBehavior<T> ReceiveMessage<T>(ReceiveMessage<T> onMessage) =>
             new ReceiveMessageBehavior<T>(onMessage);
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Akka.Typed
         /// <param name="behavior"></param>
         /// <param name="onSignal"></param>
         /// <returns></returns>
-        public static Behavior<T> ReceiveSignal<T>(ReceiveSignal<T> onSignal) where T : class =>
+        public static Behavior<T> ReceiveSignal<T>(ReceiveSignal<T> onSignal) =>
             new ReceiveMessageBehavior<T>(async _ => Same<T>()).ReceiveSignal(onSignal);
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Akka.Typed
         /// wrapped behavior can evolve (i.e. return different behavior) without needing to be
         /// wrapped in a `monitor` call again.
         /// </summary>
-        public static Behavior<T> Monitor<T>(this Behavior<T> behavior, IActorRef<T> monitor) where T : class => throw new NotImplementedException();
+        public static Behavior<T> Monitor<T>(this Behavior<T> behavior, IActorRef<T> monitor) => throw new NotImplementedException();
 
         /// <summary>
         /// Wrap the given behavior with the given <see cref="SupervisorStrategy"/> for
@@ -183,9 +183,9 @@ namespace Akka.Typed
         ///      .onFailure[IndexOutOfBoundsException](SupervisorStrategy.resume) // resume for IndexOutOfBoundsException exceptions
         /// </code>
         /// </summary>
-        public static Supervise<T> Supervise<T>(this Behavior<T> behavior) where T : class => new Supervise<T>(behavior);
+        public static Supervise<T> Supervise<T>(this Behavior<T> behavior) => new Supervise<T>(behavior);
 
-        internal static async ValueTask<Behavior<T>> Unwrap<T>(Behavior<T> result, IActorContext<T> context) where T : class
+        internal static async ValueTask<Behavior<T>> Unwrap<T>(Behavior<T> result, IActorContext<T> context)
         {
             while (result is DeferredBehavior<T> deferred)
             {
@@ -196,7 +196,7 @@ namespace Akka.Typed
         }
 
         public static async ValueTask<Behavior<T>> Interpret<T>(Behavior<T> behavior, IActorContext<T> context, T message) 
-            where T : class
+           
         {
             if (behavior is ExtensibleBehavior<T> ext)
             {
@@ -214,7 +214,7 @@ namespace Akka.Typed
         }
 
         public static async ValueTask<Behavior<T>> Interpret<T>(Behavior<T> behavior, IActorContext<T> context, ISignal signal)
-            where T : class
+           
         {
             if (behavior is ExtensibleBehavior<T> ext)
             {
@@ -239,7 +239,7 @@ namespace Akka.Typed
         }
     }
 
-    public struct Supervise<T> where T : class 
+    public struct Supervise<T> 
     {
         private readonly Behavior<T> behavior;
 

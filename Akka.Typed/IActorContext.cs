@@ -35,7 +35,7 @@ namespace Akka.Typed
     /// 
     /// Not for user extension.
     /// </summary>
-    public interface IActorContext<in TMessage> where TMessage: class
+    public interface IActorContext<in TMessage>
     {
         /// <summary>
         /// The identity of this Actor, bound to the lifecycle of this Actor instance.

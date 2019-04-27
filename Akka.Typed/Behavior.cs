@@ -13,7 +13,7 @@ using Akka.Typed.Internal;
 
 namespace Akka.Typed
 {
-    public abstract class Behavior<TMessage> where TMessage: class
+    public abstract class Behavior<TMessage>
     {
         #region statics
         
@@ -46,7 +46,7 @@ namespace Akka.Typed
     /// Note that behaviors that keep an inner behavior, and intercepts messages for it should not be implemented as
     /// an extensible behavior but should instead use the [[BehaviorInterceptor]]
     /// </summary>
-    public abstract class ExtensibleBehavior<TMessage> : Behavior<TMessage> where TMessage : class
+    public abstract class ExtensibleBehavior<TMessage> : Behavior<TMessage>
     {
         /// <summary>
         /// Process an incoming message and return the next behavior.
@@ -107,7 +107,7 @@ namespace Akka.Typed
             throw new NotImplementedException();
     }
 
-    internal sealed class EmptyBehavior<T> : Behavior<T> where T : class
+    internal sealed class EmptyBehavior<T> : Behavior<T>
     {
         public static readonly Behavior<T> Instance = new EmptyBehavior<T>();
         private EmptyBehavior() { }
@@ -116,7 +116,7 @@ namespace Akka.Typed
         public override Behavior<TNarrowed> Narrow<TNarrowed>() => EmptyBehavior<TNarrowed>.Instance;
     }
     
-    internal sealed class IgnoreBehavior<T> : Behavior<T> where T : class
+    internal sealed class IgnoreBehavior<T> : Behavior<T>
     {
         public static readonly Behavior<T> Instance = new IgnoreBehavior<T>();
         private IgnoreBehavior() { }
@@ -125,7 +125,7 @@ namespace Akka.Typed
         public override Behavior<TNarrowed> Narrow<TNarrowed>() => IgnoreBehavior<TNarrowed>.Instance;
     }
 
-    internal sealed class UnhandledBehavior<T> : Behavior<T> where T : class
+    internal sealed class UnhandledBehavior<T> : Behavior<T>
     {
         public static readonly Behavior<T> Instance = new UnhandledBehavior<T>();
         private UnhandledBehavior() { }
@@ -134,7 +134,7 @@ namespace Akka.Typed
         public override Behavior<TNarrowed> Narrow<TNarrowed>() => UnhandledBehavior<TNarrowed>.Instance;
     }
 
-    internal sealed class SameBehavior<T> : Behavior<T> where T : class
+    internal sealed class SameBehavior<T> : Behavior<T>
     {
         public static readonly Behavior<T> Instance = new SameBehavior<T>();
         private SameBehavior() { }
@@ -143,7 +143,7 @@ namespace Akka.Typed
         public override Behavior<TNarrowed> Narrow<TNarrowed>() => SameBehavior<TNarrowed>.Instance;
     }
 
-    internal sealed class DeferredBehavior<T> : Behavior<T> where T : class
+    internal sealed class DeferredBehavior<T> : Behavior<T>
     {
         internal readonly Defer<T> Deferred;
         internal DeferredBehavior(Defer<T> deferred)
@@ -156,7 +156,7 @@ namespace Akka.Typed
             throw new NotImplementedException();
     }
 
-    internal sealed class StoppedBehavior<T> : Behavior<T> where T : class
+    internal sealed class StoppedBehavior<T> : Behavior<T>
     {
         public static readonly Behavior<T> Default = new StoppedBehavior<T>(null);
 
@@ -176,7 +176,7 @@ namespace Akka.Typed
         }
     }
 
-    internal sealed class FailedBehavior<T> : Behavior<T> where T : class
+    internal sealed class FailedBehavior<T> : Behavior<T>
     {
         public static readonly Behavior<T> Instance = new FailedBehavior<T>();
         private FailedBehavior() { }

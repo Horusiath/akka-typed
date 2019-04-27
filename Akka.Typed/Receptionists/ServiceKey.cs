@@ -10,7 +10,7 @@ using System;
 
 namespace Akka.Typed.Receptionists
 {
-    public readonly struct ServiceKey<T> where T: class
+    public readonly struct ServiceKey<T>
     {
         public readonly string Id;
 
